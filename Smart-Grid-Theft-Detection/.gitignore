@@ -1,0 +1,9 @@
+@"
+data/*.csv
+*.joblib
+__pycache__/
+*.pyc
+venv/
+.venv/
+.ipynb_checkpoints/
+"@ | Out-File -Encoding utf8 .gitignore
