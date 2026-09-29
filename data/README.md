@@ -1,7 +1,17 @@
-# Data
+# Data folder
 
-Place the cleaned SGCC-derived CSV here as `cleaned_data.csv`.
+Place your cleaned SGCC-derived dataset here as:
 
-The dashboard can handle the source-file layout used in this project (date columns first, `CONS_NO` and `FLAG` at the end) as well as the more conventional `CONS_NO`, `FLAG`, then date columns.
+    data/cleaned_data.csv
 
-For Review 1, the consumer-analysis page treats the final 30 calendar days as the target period and the preceding windows as historical features. This mirrors the notebook setup.
+Expected format:
+- One row per consumer.
+- Columns: `CONS_NO`, `FLAG`, then one column per date
+  (e.g. `2016-10-02`, `2016-10-03`, ... `2016-10-31`, or however many
+  days of history you want available for the rolling-window features).
+- `FLAG` is the ground-truth label (0 = normal, 1 = suspicious) — only
+  used for display/comparison, never fed into the model at inference time.
+
+If this file is not present, the dashboard automatically falls back to
+a small synthetic DEMO dataset (see `utils/data_utils.py`) so it still
+runs end-to-end for a live demo or review.
