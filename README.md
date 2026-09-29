@@ -1,42 +1,89 @@
-# Smart Grid Electricity Theft & Consumption Anomaly Detection — Review 1 Dashboard
+# Smart Grid Electricity Theft & Consumption Anomaly Detection — Dashboard
 
-A Streamlit dashboard for the Review 1 academic project. It covers Unit 1 (probability analysis and polynomial curve fitting) and Unit 2 (Bayesian Linear Regression and SVM).
+A simple Streamlit dashboard for the academic project *"Smart Grid
+Electricity Theft & Consumption Anomaly Detection Using Bayesian Machine
+Learning."* Built as a clean, minimal demo suitable for a faculty project
+review — not a commercial-style product.
 
-## Important status
-- The dashboard code has been aligned to the notebook's Review-1 feature definitions.
-- It uses `log1p(target_mean_30)` for Bayesian prediction, matching the model training.
-- The consumer-analysis view uses the same 30-day target setup as the project.
-- The SVM input supports both the 20-feature baseline model and the 23-feature final polynomial-feature model.
-- The dashboard does **not** invent final SVM metrics; `SVM_FINAL_METRICS` stays blank until you paste the actual final evaluation.
+The system flags consumers as **Normal** or **Potentially Suspicious**
+based on deviation from Bayesian-predicted expected consumption. It never
+claims to prove theft.
 
-## Run
-```bash
-python -m venv venv
-venv\\Scripts\\activate      # Windows
-pip install -r requirements.txt
-streamlit run app.py
+## Project structure
+
+```
+smart-grid-dashboard/
+├── app.py                   # main Streamlit app (all 4 pages)
+├── requirements.txt
+├── README.md                 # this file
+├── utils/
+│   ├── theme.py               # colors, CSS, small UI helpers
+│   ├── data_utils.py           # dataset loading + demo data generator
+│   └── model_utils.py          # feature engineering, model loading, scoring
+├── data/
+│   └── README.md               # where to put cleaned_data.csv
+└── models/
+    └── README.md               # where to put the .joblib model files
 ```
 
-Without `data/cleaned_data.csv`, the app runs in clearly-labeled DEMO MODE with synthetic data only. The fixed Model Results numbers are the reported project metrics; they are not recomputed from demo data.
+## Setup
 
-## Real-data mode
-Place your cleaned SGCC-derived CSV at:
-`data/cleaned_data.csv`
+1. Create a virtual environment (recommended):
 
-Required columns:
-- `CONS_NO`
-- optional `FLAG`
-- daily date columns (any parseable date format accepted by pandas)
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
 
-## Model files
-Place model artifacts in `models/`:
-- `bayesian_model.joblib` — your trained Bayesian pipeline
-- `svm_model.joblib` — preferably the complete trained SVM pipeline; the app also supports an estimator + optional `scaler.joblib`
-- `scaler.joblib` — only needed if the SVM file is not already a pipeline that scales/imputes features
+2. Install dependencies:
 
-Expected SVM features:
-- 20 features for the baseline SVM
-- 23 features for the final polynomial-feature SVM
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Presentation-safe wording
-Use **Normal** / **Potentially Suspicious — Requires Investigation**. Do not write **Theft Confirmed**.
+3. (Optional, for REAL mode) Add your data and models:
+   - Place your cleaned dataset at `data/cleaned_data.csv` — see
+     `data/README.md` for the expected format.
+   - Place your trained model files in `models/` — see
+     `models/README.md` for exact filenames.
+
+   If these are not present, the dashboard runs in **DEMO MODE**
+   automatically, using a small synthetic dataset and a transparent
+   fallback scoring rule, so it's fully explorable without the real
+   (large, non-public) SGCC dataset.
+
+4. Run the dashboard:
+
+   ```bash
+   streamlit run app.py
+   ```
+
+   Then open the URL Streamlit prints (typically `http://localhost:8501`).
+
+## Pages
+
+- **Home / Overview** — project purpose, pipeline, dataset summary.
+- **Consumer Analysis** — look up a `CONS_NO`, see its consumption
+  history, rolling means, expected consumption, uncertainty, anomaly
+  score, and classification.
+- **Model Results** — Bayesian regression metrics, anomaly-score
+  comparison by ground-truth flag, probability analysis, and SVM
+  metrics (baseline + a placeholder for the final polynomial-feature
+  SVM, which is still being evaluated).
+- **Methodology** — preprocessing, feature list, polynomial fitting,
+  Bayesian model, anomaly formula, and SVM classification, plus the
+  framing note that flags are *"Potentially Suspicious"*, never
+  *"Theft Confirmed."*
+
+## Notes
+
+- The app **never retrains models on startup** — it only loads
+  pre-trained `.joblib` files via `joblib.load(...)`.
+- All Bayesian/SVM performance numbers on the Model Results page are
+  fixed constants taken directly from the project write-up
+  (`utils/model_utils.py`) — they are not recomputed or fabricated by
+  the dashboard.
+- The **final SVM (with polynomial features)** metrics are left as an
+  explicit placeholder (`mu.SVM_FINAL_METRICS = None`) until that
+  evaluation is complete — fill it in in `utils/model_utils.py` once
+  you have real numbers.
